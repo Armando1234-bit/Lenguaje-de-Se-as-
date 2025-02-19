@@ -1,28 +1,35 @@
-const startButton = document.getElementById("start");
-const textOutput = document.getElementById("textOutput");
+const button = document.getElementById('start-recording');
+const outputDiv = document.getElementById('output');
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
 
-// Verificar si el navegador soporta reconocimiento de voz
-if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
-  const recognition = new (window.SpeechRecognition ||
-    window.webkitSpeechRecognition)();
-  recognition.lang = "es-ES"; // Idioma español
+recognition.lang = 'es-ES';
+recognition.continuous = true;
+recognition.interimResults = true;
 
-  // Iniciar grabación cuando se presiona el botón
-  startButton.addEventListener("click", () => {
+button.onclick = function() {
     recognition.start();
-    textOutput.innerText = "Escuchando...";
-  });
+};
 
-  // Cuando se reconoce algo, se muestra el texto
-  recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    textOutput.innerText = `Texto reconocido: ${transcript}`;
-  };
+recognition.onresult = function(event) {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+    }
+    outputDiv.innerHTML = transcript;
+    displaySignImages(transcript);
+};
 
-  // Manejar errores
-  recognition.onerror = (event) => {
-    textOutput.innerText = "Error: " + event.error;
-  };
-} else {
-  textOutput.innerText = "Tu navegador no soporta el reconocimiento de voz.";
+recognition.onerror = function(event) {
+    console.error('Error de reconocimiento:', event.error);
+};
+
+function displaySignImages(text) {
+    const letters = text.toUpperCase().split('');
+    outputDiv.innerHTML = ''; // Limpiar el área de salida
+    letters.forEach(letter => {
+        const img = document.createElement('img');
+        img.src = `./assets/${letter}.jpg`; // Asegúrate de que las imágenes están en la carpeta de assets
+        img.alt = `Seña de la letra ${letter}`;
+        outputDiv.appendChild(img);
+    });
 }
