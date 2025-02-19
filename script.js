@@ -1,3 +1,21 @@
+const button = document.getElementById('start-recording');
+const outputDiv = document.getElementById('output');
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+recognition.lang = 'es-ES';
+recognition.continuous = true;
+recognition.interimResults = true;
+
+button.onclick = function() {
+    recognition.start();
+};
+
+recognition.onresult = function(event) {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+    }
+    outputDiv.innerHTML = transcript;
     displaySignImages(transcript);
 };
 
